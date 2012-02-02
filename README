@@ -1,2 +1,8 @@
 Python library for github API V3
 First version
+
+'conf' file content
+
+login=smustafin
+pass=12as34df
+org_name=GD-result

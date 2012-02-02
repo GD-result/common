@@ -19,7 +19,7 @@ except NameError:
     print "Bad srtucture 'conf' file"
     exit()
 host = 'https://api.github.com/'
-
+#delete user from org
 def del_from_org(user):
 	reqq = 'orgs/%s/members/%s' % (org_name,user)
 	url = host + reqq
@@ -29,7 +29,7 @@ def del_from_org(user):
 	else:
 		res = "Delete successful"
 	return res
-
+# add user to team
 def add_to_team(user,team_name):
 	team_id = str(search_id_team(team_name))
 	if team_id == "Team not found":
@@ -42,7 +42,7 @@ def add_to_team(user,team_name):
 	else:
 		res = "%s was added to team" % user
 	return res
-
+#search id_team by name
 def search_id_team(team_name):
     reqq = 'orgs/%s/teams' % (org_name)
     url = host + reqq
@@ -57,7 +57,7 @@ def search_id_team(team_name):
         except:
             return "Team not found"
     return cont[i]['id'] 
-
+#create team
 def create_team(team_name,permission,repo_name):
 	reqq = 'orgs/%s/teams' % org_name
 	url = host + reqq
@@ -67,16 +67,11 @@ def create_team(team_name,permission,repo_name):
 	else:
 		res = "%s was created" % team_name
 	return res
-
-def create_repo(repo_name,descrip): #withot private
-    #tmp=private
-    #if (tmp<>"true"):
-    # if (tmp<>"false"):
-    # print "Second parametr could be 'true' or 'false'"
-    # else:
+# create repo
+def create_repo(repo_name,private,descrip):
     reqq='orgs/%s/repos' % (org_name)
     url = host + reqq
-    r = requests.post(url, auth=(login,passw),data = '{"name":"%s","description":"%s"}' % (repo_name,descrip))
+    r = requests.post(url, auth=(login,passw),data = '{"name":"%s","private":"%s","description":"%s"}' % (repo_name,private,descrip))
     if r.status_code == 201:
         res = "Done! Repo %s created" % repo_name
         # creating 3 teams
@@ -86,7 +81,7 @@ def create_repo(repo_name,descrip): #withot private
     else:
         res = "Error "+ r.headers['status']
     return res
-
+#delete from team
 def del_from_team(user,team_name):
     if search_id_team(team_name) == "Team not found":
         return "Team not found"
