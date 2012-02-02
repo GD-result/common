@@ -13,11 +13,6 @@ st = lin[1].split("=")[1]
 passw = st[0:len(st)-1]
 st = lin[2].split("=")[1]
 org_name = st[0:len(st)-1]
-try:
-    tm1,tm2,tm3 = login, passw, org_name
-except NameError:
-    print "Bad srtucture 'conf' file"
-    exit()
 host = 'https://api.github.com/'
 #delete user from org
 def del_from_org(user):
