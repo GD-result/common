@@ -1,22 +1,13 @@
 import requests
 import json
 try:
-    f = open('conf.py','r')
+	f = open('conf.py','r')
 except IOError:
-    print "File 'conf' not found"
-    exit()
+	print "File 'conf' not found"
+	exit()
 from conf import password
 from conf import login
 from conf import org_name
-#lin = f.readlines()
-#f.close()
-#st = lin[0].split("=")[1]
-#login = st[0:len(st)-1]
-#st = lin[1].split("=")[1]
-#passw = st[0:len(st)-1]
-#st = lin[2].split("=")[1]
-#org_name = st[0:len(st)-1]
-print password,login,org_name
 passw=password
 host = 'https://api.github.com/'
 
