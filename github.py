@@ -15,7 +15,6 @@ st = lin[2].split("=")[1]
 org_name = st[0:len(st)-1]
 host = 'https://api.github.com/'
 
-
 #create team
 def create_team(team_name,permission,repo_name):
 	reqq = 'orgs/%s/teams' % org_name
