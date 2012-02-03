@@ -1,8 +1,2 @@
 Python library for github API V3
 First version
-
-'conf' file content
-
-login=zzzzz
-pass=xxxxx
-org_name=oooooo
