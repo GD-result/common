@@ -26,10 +26,6 @@ from conf import org_name
 #k = conf.password;
 host = 'https://api.github.com/'
 
-def first():
-    r = requests;
-    print r.headers['status'];
-    
 def help():
     print
     print "        Function: create_team(team_name,permission,repo_name)"
@@ -130,7 +126,7 @@ def add_user_to_team(user,team_name):
         return 0;
     else:
         if debug == 1:
-            print r.headers['ALL'];    #HADO GLYANYTb       
+            print r.headers;    #HADO GLYANYTb       
             
         return -1
 
@@ -142,19 +138,27 @@ def del_user_from_team(user,team_name):
     url = host + reqq
     r = requests.delete(url, auth = (login,password))
     if r.status_code == httplib.NO_CONTENT:  #ERROR 204
-        res = "User '" + user + "' was deleted from team " + team_name
+        result = "User '" + user + "' was deleted from team " + team_name
+        print result;
+        return 0;
     else:
-        res = "Error "+ r.headers['status']
-    return res
+        if debug == 1:
+            print r.headers;    #HADO GLYANYTb       
+            
+        return -1
 
 #delete user from org
 def del_user_from_org(user):
     reqq = 'orgs/%s/members/%s' % (org_name,user)
     url = host + reqq
     r = requests.delete(url,auth = (login,password))
-    if r.status_code != httplib.NO_CONTENT: #ERROR 204
-        res = "Error "+ r.headers['status']
+    if r.status_code == httplib.NO_CONTENT: #ERROR 204
+        result = "Error "+ r.headers['status']
+        print result;
+        return 0;
     else:
-        res = user + " succesfully removed"
-    return res
+        if debug == 1:
+            print r.headers;    #HADO GLYANYTb       
+            
+        return -1
 
