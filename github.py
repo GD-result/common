@@ -18,7 +18,6 @@ except IOError:
 from conf import password
 from conf import login
 from conf import org_name
-#k = conf.password;
 host = 'https://api.github.com/'
 
 def help():
@@ -47,19 +46,18 @@ def debug_mode(value):
     
 
 #create team
-def create_team(team_name,permission,repo_name):
+def create_team(team_name,permission = "pull",repo_name = ""):
     reqq = 'orgs/%s/teams' % org_name
     url = host + reqq
-    r = requests.post(url,auth = (login,password),data = '{"name":"%s", "repo_names":["%s/%s"], "permission":"%s"}' % (team_name,org_name,repo_name,permission))
+    r = requests.post(url,auth = (login,password),\
+    data = '{"name":"%s", "repo_names":["%s/%s"], "permission":"%s"}' \
+    % (team_name,org_name,repo_name,permission))
     if r.status_code == httplib.CREATED:   # ERROR 201
         return 0;
-        #res = "Error "+ r.headers['status']
     else:
-        #res = "%s was created" % team_name
-        #return res
-        #if debug_mode(value) == 0: 
+        
         if debug == 1:
-            print r.headers;    #HADO GLYANYTb       
+            print r.headers;         
         
         return -1;
 
@@ -68,9 +66,10 @@ def create_team(team_name,permission,repo_name):
 def create_repo(repo_name,private,description):
     reqq='orgs/%s/repos' % (org_name)
     url = host + reqq
-    r = requests.post(url, auth=(login,password),data = '{"name":"%s","private":"%s","description":"%s"}' % (repo_name,private,description))
+    r = requests.post(url, auth=(login,password),\
+    data = '{"name":"%s","private":"%s","description":"%s"}' \
+    % (repo_name,private,description))
     if r.status_code == httplib.CREATED:    # ERROR 201
-        #res = "Done! Repo %s created" % repo_name
         # creating 3 teams
         create_team(repo_name,'pull',repo_name)
         create_team(repo_name+'-guests','push',repo_name)
@@ -92,14 +91,16 @@ def search_id_team(team_name):
         cont = json.loads(r.content);
         i = 0;
         result = 0;
-        for i in cont.count-1:
+        while 1:
             if cont[i]['name'] == team_name:
                 result = cont[i]['id']
                 break;
             
+            i += 1;
+            
     else:
         if debug == 1:
-            print r.headers;    #HADO GLYANYTb       
+            print r.headers;         
         
         return -1;
         
@@ -121,7 +122,7 @@ def add_user_to_team(user,team_name):
         return 0;
     else:
         if debug == 1:
-            print r.headers;    #HADO GLYANYTb       
+            print r.headers;          
             
         return -1
 
@@ -138,7 +139,7 @@ def del_user_from_team(user,team_name):
         return 0;
     else:
         if debug == 1:
-            print r.headers;    #HADO GLYANYTb       
+            print r.headers;           
             
         return -1
 
@@ -148,12 +149,10 @@ def del_user_from_org(user):
     url = host + reqq
     r = requests.delete(url,auth = (login,password))
     if r.status_code == httplib.NO_CONTENT: #ERROR 204
-        result = "Error "+ r.headers['status']
-        print result;
         return 0;
     else:
         if debug == 1:
-            print r.headers;    #HADO GLYANYTb       
+            print r.headers;       
             
         return -1
 
