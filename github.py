@@ -1,29 +1,12 @@
-'''
-Created on 06.02.2012
-
-@author: ninja
-'''
-
 import requests
 import json
 import httplib
-import string
 
-<<<<<<< HEAD
 f = open('conf.py','r')
 
-=======
-try:
-    f = open('conf.py','r')
-except IOError:
-    print "File 'conf' not found"
-    exit()
-    
->>>>>>> adf3b1d54066c209646035c3e1772213746f9da3
 from conf import password
 from conf import login
 from conf import org_name
-#k = conf.password;
 host = 'https://api.github.com/'
 
 def help():
@@ -52,19 +35,17 @@ def debug_mode(value):
     
 
 #create team
-def create_team(team_name,permission,repo_name):
+def create_team(team_name,permission="pull",repo_name=""):
     reqq = 'orgs/%s/teams' % org_name
     url = host + reqq
-    r = requests.post(url,auth = (login,password),data = '{"name":"%s", "repo_names":["%s/%s"], "permission":"%s"}' % (team_name,org_name,repo_name,permission))
-    if r.status_code == httplib.CREATED:   # ERROR 201
-        return 0;
-        #res = "Error "+ r.headers['status']
-    else:
-        #res = "%s was created" % team_name
-        #return res
-        #if debug_mode(value) == 0: 
+    r = requests.post(url,auth = (login,password),\
+data = '{"name":"%s", "repo_names":["%s/%s"], "permission":"%s"}' \
+% (team_name,org_name,repo_name,permission))
+    if r.status_code == httplib.CREATED:  
+        return 0
+    else: 
         if debug == 1:
-            print r.headers;    #HADO GLYANYTb       
+            print r.headers           
         
         return -1;
 
@@ -73,10 +54,10 @@ def create_team(team_name,permission,repo_name):
 def create_repo(repo_name,private,description):
     reqq='orgs/%s/repos' % (org_name)
     url = host + reqq
-    r = requests.post(url, auth=(login,password),data = '{"name":"%s","private":"%s","description":"%s"}' % (repo_name,private,description))
+    r = requests.post(url, auth=(login,password),\
+data = '{"name":"%s","private":"%s","description":"%s"}' \
+% (repo_name,private,description))
     if r.status_code == httplib.CREATED:    # ERROR 201
-        #res = "Done! Repo %s created" % repo_name
-        # creating 3 teams
         create_team(repo_name,'pull',repo_name)
         create_team(repo_name+'-guests','push',repo_name)
         create_team(repo_name+'-owners','admin',repo_name)
@@ -104,7 +85,7 @@ def search_id_team(team_name):
             
     else:
         if debug == 1:
-            print r.headers;    #HADO GLYANYTb       
+            print r.headers;           
         
         return -1;
         
@@ -126,8 +107,7 @@ def add_user_to_team(user,team_name):
         return 0;
     else:
         if debug == 1:
-            print r.headers;    #HADO GLYANYTb       
-            
+            print r.headers;                      
         return -1
 
 #delete from team
@@ -143,7 +123,7 @@ def del_user_from_team(user,team_name):
         return 0;
     else:
         if debug == 1:
-            print r.headers;    #HADO GLYANYTb       
+            print r.headers;          
             
         return -1
 
@@ -158,7 +138,6 @@ def del_user_from_org(user):
         return 0;
     else:
         if debug == 1:
-            print r.headers;    #HADO GLYANYTb       
+            print r.headers;     
             
         return -1
-
