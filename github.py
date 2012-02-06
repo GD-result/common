@@ -1,14 +1,17 @@
 import requests
 import json
+import conf
 try:
 	f = open('conf.py','r')
 except IOError:
 	print "File 'conf' not found"
 	exit()
+
 from conf import password
 from conf import login
 from conf import org_name
-passw=password
+
+passw=password #poka ira ne ubrala passw
 host = 'https://api.github.com/'
 
 #create team
@@ -90,4 +93,3 @@ def del_user_from_org(user):
 	else:
 		res = user + " succesfully removed"
 	return res
-
