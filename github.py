@@ -30,20 +30,24 @@ def debug_mode(value):
         debug = 0;
     else:
         debug = -1; 
+
     
+
 
 #create team
 def create_team(team_name,permission="pull",repo_name=""):
     reqq = 'orgs/%s/teams' % org_name
     url = host + reqq
     r = requests.post(url,auth = (login,password),data = '{"name":"%s", "repo_names":["%s/%s"], "permission":"%s"}' % (team_name,org_name,repo_name,permission))
+	if errors_requests(r)==-1:
+		return -1
     if r.status_code == httplib.CREATED:  
         return 0
     else: 
         if debug == 1:
             print r.headers           
         
-        return -1;
+        return -1
 
 
 # create repo
@@ -59,7 +63,7 @@ def create_repo(repo_name,private,description):
         return 0;
     else:
         if debug == 1:
-            print r.headers;      
+            print r.headers      
         
         return -1
 
@@ -67,7 +71,7 @@ def create_repo(repo_name,private,description):
 def search_id_team(team_name):
     reqq = 'orgs/%s/teams' % org_name;
     url = host + reqq;
-    r = requests.get(url, auth = (login,password));
+    r = requests.get(url, auth = (login,password))
     if r.status_code == httplib.OK:
         cont = json.loads(r.content);
         i = 0;
@@ -129,7 +133,7 @@ def del_user_from_org(user):
     if r.status_code == httplib.NO_CONTENT: #ERROR 204
         result = "Error "+ r.headers['status']
         print result;
-        return 0;
+        return 0
     else:
         if debug == 1:
             print r.headers;     
