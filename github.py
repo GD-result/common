@@ -35,8 +35,8 @@ def debug_mode(value):
 
     
 def errors_requests(value):
-	if value.headers['x-ratelimit-remaining']==0:
-		return -1
+    if value.headers['x-ratelimit-remaining']==0:
+        return -1
 
 #create team
 def create_team(team_name,permission = "pull",repo_name = ""):
