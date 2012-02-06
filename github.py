@@ -1,20 +1,9 @@
-'''
-Created on 06.02.2012
-
-@author: ninja
-'''
-
 import requests
 import json
 import httplib
-import string
 
-try:
-    f = open('conf.py','r')
-except IOError:
-    print "File 'conf' not found"
-    exit()
-    
+f = open('conf.py','r')
+
 from conf import password
 from conf import login
 from conf import org_name
@@ -123,7 +112,7 @@ def add_user_to_team(user,team_name):
     else:
         if debug == 1:
             print r.headers;          
-            
+ 
         return -1
 
 #delete from team
@@ -155,4 +144,3 @@ def del_user_from_org(user):
             print r.headers;       
             
         return -1
-
