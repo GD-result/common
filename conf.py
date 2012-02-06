@@ -1,3 +1,3 @@
-login='smustafin'
-password='12as34df'
-org_name='GD-result'
+login = 'ileonkina'
+password = '19tustuuira89'
+org_name = 'GD-result'

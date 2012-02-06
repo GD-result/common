@@ -1,95 +1,100 @@
 import requests
 import json
-import conf
-try:
-	f = open('conf.py','r')
-except IOError:
-	print "File 'conf' not found"
-	exit()
-
+import httplib
+f = open('conf.py','r')
 from conf import password
 from conf import login
 from conf import org_name
-
-passw=password #poka ira ne ubrala passw
 host = 'https://api.github.com/'
 
 #create team
-def create_team(team_name,permission,repo_name):
+def create_team(team_name,permission = 'pull',repo_name = ''):
 	reqq = 'orgs/%s/teams' % org_name
 	url = host + reqq
-	r = requests.post(url,auth = (login,passw),data = '{"name":"%s", "repo_names":["%s/%s"], "permission":"%s"}' % (team_name,org_name,repo_name,permission))
-	if r.status_code != 201:
-		res = "Error "+ r.headers['status']
+	r = requests.post(url,auth = (login,password),\
+data = '{"name":"%s", "repo_names":["%s/%s"], "permission":"%s"}' \
+% (team_name,org_name,repo_name,permission))
+	if r.status_code == httplib.CREATED:
+		res = 0
 	else:
-		res = "%s was created" % team_name
-return res
+		res = r.status_code
+	return res
 
 # create repo
 def create_repo(repo_name,private,description):
-	reqq='orgs/%s/repos' % (org_name)
-	url = host + reqq
-	r = requests.post(url, auth=(login,passw),data = '{"name":"%s","private":"%s","description":"%s"}' % (repo_name,private,description))
-	if r.status_code == 201:
-		res = "Done! Repo %s created" % repo_name
-		# creating 3 teams
-		create_team(repo_name,'pull',repo_name)
-		create_team(repo_name+'-guests','push',repo_name)
-		create_team(repo_name+'-owners','admin',repo_name)
-	else:
-		res = "Error "+ r.headers['status']
-	return res
+    reqq='orgs/%s/repos' % (org_name)
+    url = host + reqq
+    r = requests.post(url, auth=(login,password),\
+data = '{"name":"%s","private":"%s","description":"%s"}'\
+ % (repo_name,private,description))
+    if r.status_code == httplib.CREATED:
+        res = 0
+        # creating 3 teams
+        create_team(repo_name,'pull',repo_name)
+        create_team(repo_name+'-guests','push',repo_name)
+        create_team(repo_name+'-owners','admin',repo_name)
+    else:
+        res = r.status_code
+    return res
 
 #search id_team by name
 def search_id_team(team_name):
-	reqq = 'orgs/%s/teams' % (org_name)
+	reqq = 'orgs/%s/teams' % org_name
 	url = host + reqq
-	r = requests.get(url, auth = (login,passw))
-	cont = json.loads(r.content)
-	i = 0
-	while 1:
-		try:
-			if cont[i]['name'] == team_name:
-				break
-			i += 1
-		except:
-			return "Team not found"
-	return cont[i]['id']
+	r = requests.get(url, auth = (login,password))
+	if r.status_code == httplib.OK:
+		cont = json.loads(r.content)
+		i = 0
+		while 1:
+			try:
+				if cont[i]['name'] == team_name:
+					break
+				i += 1
+			except:
+				res = -1
+			else:
+				res = cont[i]['id']
+	else:
+		res = r.status_code
+	return res
 
 #add user to team
 def add_user_to_team(user,team_name):
-	team_id = str(search_id_team(team_name))
-	if team_id == "Team not found":
+	team_id = search_id_team(team_name)
+	if team_id == -1:
 		return "Team not found"
-	reqq = 'teams/%s/members/%s' % (team_id,user)
+	reqq = 'teams/%d/members/%s' % (team_id,user)
 	url = host + reqq
-	r = requests.put(url,auth = (login,passw),data = '{"login":"%s"}' % user)
-	if r.status_code != 204:
-		res = "Error "+ r.headers['status']
+	r = requests.put(url,auth = (login,password),data = '{"login":"%s"}' % user)
+	if r.status_code == httplib.NO_CONTENT:
+		res = 0
 	else:
-		res = "%s was added to team" % user
-	return res
+		res = r.status_code
+	return r.headers['x-ratelimit-remaining']  #!!!!!!
 
 #delete from team
 def del_user_from_team(user,team_name):
-	if search_id_team(team_name) == "Team not found":
-		return "Team not found"
-	reqq = 'teams/%s/members/%s' % (str(search_id_team(team_name)),user)
-	url = host + reqq
-	r = requests.delete(url, auth = (login,passw))
-	if r.status_code == 204:
-		res = "User '" + user + "' was deleted from team " + team_name
-	else:
-		res = "Error "+ r.headers['status']
-	return res
+    if search_id_team(team_name) == -1:
+        return "Team not found"
+    reqq = 'teams/%d/members/%s' % (search_id_team(team_name),user)
+    url = host + reqq
+    r = requests.delete(url, auth = (login,password))
+    if r.status_code == httplib.NO_CONTENT:
+        res = 0
+    else:
+        res = r.status_code
+    return res
 
 #delete user from org
 def del_user_from_org(user):
 	reqq = 'orgs/%s/members/%s' % (org_name,user)
 	url = host + reqq
-	r = requests.delete(url,auth = (login,passw))
-	if r.status_code != 204:
-		res = "Error "+ r.headers['status']
+	r = requests.delete(url,auth = (login,password))
+	if r.status_code == httplib.NO_CONTENT:
+		res = 0
 	else:
-		res = user + " succesfully removed"
+		res = r.status_code
 	return res
+
+
+print add_user_to_team("fakeuser","common")
