@@ -16,9 +16,11 @@ host = 'https://api.github.com/'
 def create_team(team_name,permission = 'pull',repo_name = ''):
 	reqq = 'orgs/%s/teams' % org_name
 	url = host + reqq
-	r = requests.post(url,auth = (login,password),data = '{"name":"%s", "repo_names":["%s/%s"], "permission":"%s"}' % (team_name,org_name,repo_name,permission))
+	r = requests.post(url,auth = (login,password),\
+data = '{"name":"%s", "repo_names":["%s/%s"], "permission":"%s"}' \
+% (team_name,org_name,repo_name,permission))
 	if r.status_code == httplib.CREATED:
-		res = "%s was created" % team_name
+		res = 0
 	else:
 		res = r.status_code
 	return res
@@ -27,9 +29,11 @@ def create_team(team_name,permission = 'pull',repo_name = ''):
 def create_repo(repo_name,private,description):
     reqq='orgs/%s/repos' % (org_name)
     url = host + reqq
-    r = requests.post(url, auth=(login,password),data = '{"name":"%s","private":"%s","description":"%s"}' % (repo_name,private,description))
+    r = requests.post(url, auth=(login,password),\
+data = '{"name":"%s","private":"%s","description":"%s"}'\
+ % (repo_name,private,description))
     if r.status_code == httplib.CREATED:
-        res = "Repo %s created" % repo_name
+        res = 0
         # creating 3 teams
         create_team(repo_name,'pull',repo_name)
         create_team(repo_name+'-guests','push',repo_name)
@@ -68,7 +72,7 @@ def add_user_to_team(user,team_name):
 	url = host + reqq
 	r = requests.put(url,auth = (login,password),data = '{"login":"%s"}' % user)
 	if r.status_code == httplib.NO_CONTENT:
-		res = "%s was added to team" % user
+		res = 0
 	else:
 		res = r.status_code
 	return res
@@ -81,7 +85,7 @@ def del_user_from_team(user,team_name):
     url = host + reqq
     r = requests.delete(url, auth = (login,password))
     if r.status_code == httplib.NO_CONTENT:
-        res = "User '" + user + "' was deleted from team " + team_name
+        res = 0
     else:
         res = r.status_code
     return res
@@ -92,7 +96,7 @@ def del_user_from_org(user):
 	url = host + reqq
 	r = requests.delete(url,auth = (login,password))
 	if r.status_code == httplib.NO_CONTENT:
-		res = user + " succesfully removed"
+		res = 0
 	else:
 		res = r.status_code
 	return res
