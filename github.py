@@ -33,9 +33,17 @@ def debug_mode(value):
     else:
         debug = -1; 
     
-
-#create team
 def create_team(team_name,permission = "pull",repo_name = ""):
+    """
+    create_team(team_name, permission, repo_name)
+    Use this function to create team in your organization
+    team_name - Required string
+    permission - Optional string
+    pull - team members can pull, but not push or administer this repositories. Default
+    push - team members can pull and push, but not administer this repositores.
+    admin - team members can pull, push and administer these repositories
+    repo_name - Optional string
+    """
     reqq = 'orgs/%s/teams' % org_name
     url = host + reqq
     r = requests.post(url,auth = (login,password),\
@@ -53,6 +61,10 @@ def create_team(team_name,permission = "pull",repo_name = ""):
 
 # create repo
 def create_repo(repo_name,private,description):
+    """
+    create_repo(repo_name,private,description)
+    Use this function to create repository and 3 teams (*, *-guests, *-owners) in your organization
+    """
     reqq='orgs/%s/repos' % (org_name)
     url = host + reqq
     r = requests.post(url, auth=(login,password),\
@@ -63,7 +75,6 @@ def create_repo(repo_name,private,description):
         create_team(repo_name,'pull',repo_name)
         create_team(repo_name+'-guests','push',repo_name)
         create_team(repo_name+'-owners','admin',repo_name)
-        print "Done! Repo %s created" % repo_name
         return 0;
     else:
         if debug == 1:
@@ -107,7 +118,6 @@ def add_user_to_team(user,team_name):
     url = host + reqq
     r = requests.put(url,auth = (login,password),data = '{"login":"%s"}' % user)
     if r.status_code == httplib.NO_CONTENT:  #204
-        print "%s was added to team" % user;
         return 0;
     else:
         if debug == 1:
@@ -123,8 +133,6 @@ def del_user_from_team(user,team_name):
     url = host + reqq
     r = requests.delete(url, auth = (login,password))
     if r.status_code == httplib.NO_CONTENT:  #ERROR 204
-        result = "User '" + user + "' was deleted from team " + team_name
-        print result;
         return 0;
     else:
         if debug == 1:
