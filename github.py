@@ -1,7 +1,9 @@
 import requests
 import json
 import httplib
+
 f = open('conf.py','r')
+
 from conf import password
 from conf import login
 from conf import org_name
@@ -32,10 +34,12 @@ def debug_mode(value):
         debug = -1; 
 
     
-
+def errors_requests(value):
+	if value.headers['x-ratelimit-remaining']==0:
+		return -1
 
 #create team
-def create_team(team_name,permission="pull",repo_name=""):
+def create_team(team_name,permission = "pull",repo_name = ""):
     reqq = 'orgs/%s/teams' % org_name
     url = host + reqq
     r = requests.post(url,auth = (login,password),data = '{"name":"%s", "repo_names":["%s/%s"], "permission":"%s"}' % (team_name,org_name,repo_name,permission))
@@ -45,7 +49,7 @@ def create_team(team_name,permission="pull",repo_name=""):
         return 0
     else: 
         if debug == 1:
-            print r.headers           
+            print r.headers;         
         
         return -1
 
@@ -54,8 +58,13 @@ def create_team(team_name,permission="pull",repo_name=""):
 def create_repo(repo_name,private,description):
     reqq='orgs/%s/repos' % (org_name)
     url = host + reqq
-    r = requests.post(url, auth=(login,password),data = '{"name":"%s","private":"%s","description":"%s"}' % (repo_name,private,description))
+    r = requests.post(url, auth=(login,password),\
+    data = '{"name":"%s","private":"%s","description":"%s"}' \
+    % (repo_name,private,description))
+	if errors_requests(r)==-1:
+		return -1
     if r.status_code == httplib.CREATED:    # ERROR 201
+        # creating 3 teams
         create_team(repo_name,'pull',repo_name)
         create_team(repo_name+'-guests','push',repo_name)
         create_team(repo_name+'-owners','admin',repo_name)
@@ -72,18 +81,22 @@ def search_id_team(team_name):
     reqq = 'orgs/%s/teams' % org_name;
     url = host + reqq;
     r = requests.get(url, auth = (login,password))
+	if errors_requests(r)==-1:
+		return -1
     if r.status_code == httplib.OK:
         cont = json.loads(r.content);
         i = 0;
         result = 0;
-        for i in cont.count-1:
+        while 1:
             if cont[i]['name'] == team_name:
                 result = cont[i]['id']
                 break;
             
+            i += 1;
+            
     else:
         if debug == 1:
-            print r.headers;           
+            print r.headers;         
         
         return -1;
         
@@ -100,12 +113,15 @@ def add_user_to_team(user,team_name):
     reqq = 'teams/%d/members/%s' % (team_id,user)
     url = host + reqq
     r = requests.put(url,auth = (login,password),data = '{"login":"%s"}' % user)
+	if errors_requests(r)==-1:
+		return -1
     if r.status_code == httplib.NO_CONTENT:  #204
         print "%s was added to team" % user;
         return 0;
     else:
         if debug == 1:
-            print r.headers;                      
+            print r.headers;          
+ 
         return -1
 
 #delete from team
@@ -115,13 +131,15 @@ def del_user_from_team(user,team_name):
     reqq = 'teams/%d/members/%s' % (search_id_team(team_name),user)
     url = host + reqq
     r = requests.delete(url, auth = (login,password))
+	if errors_requests(r)==-1:
+		return -1
     if r.status_code == httplib.NO_CONTENT:  #ERROR 204
         result = "User '" + user + "' was deleted from team " + team_name
         print result;
         return 0;
     else:
         if debug == 1:
-            print r.headers;          
+            print r.headers;           
             
         return -1
 
@@ -130,13 +148,12 @@ def del_user_from_org(user):
     reqq = 'orgs/%s/members/%s' % (org_name,user)
     url = host + reqq
     r = requests.delete(url,auth = (login,password))
+	if errors_requests(r)==-1:
+		return -1
     if r.status_code == httplib.NO_CONTENT: #ERROR 204
-        result = "Error "+ r.headers['status']
-        print result;
-        return 0
+        return 0;
     else:
         if debug == 1:
-            print r.headers;     
+            print r.headers;       
             
         return -1
-print create_team("fakeuser")
