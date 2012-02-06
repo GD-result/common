@@ -2,11 +2,8 @@ import requests
 import json
 import httplib
 
-try:
-    f = open('conf.py','r')
-except IOError:
-    print "File 'conf' not found"
-    exit()
+f = open('conf.py','r')
+
 from conf import password
 from conf import login
 from conf import org_name
