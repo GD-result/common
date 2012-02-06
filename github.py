@@ -13,7 +13,7 @@ from conf import org_name
 host = 'https://api.github.com/'
 
 #create team
-def create_team(team_name,permission,repo_name):
+def create_team(team_name,permission = 'pull',repo_name = ''):
 	reqq = 'orgs/%s/teams' % org_name
 	url = host + reqq
 	r = requests.post(url,auth = (login,password),data = '{"name":"%s", "repo_names":["%s/%s"], "permission":"%s"}' % (team_name,org_name,repo_name,permission))
@@ -75,7 +75,7 @@ def add_user_to_team(user,team_name):
 
 #delete from team
 def del_user_from_team(user,team_name):
-    if search_id_team(team_name) == "Team not found":
+    if search_id_team(team_name) == -1:
         return "Team not found"
     reqq = 'teams/%d/members/%s' % (search_id_team(team_name),user)
     url = host + reqq
