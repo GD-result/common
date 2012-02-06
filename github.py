@@ -50,7 +50,9 @@ def create_team(team_name,permission = "pull",repo_name = ""):
     """
     reqq = 'orgs/%s/teams' % org_name
     url = host + reqq
-    r = requests.post(url,auth = (login,password),data = '{"name":"%s", "repo_names":["%s/%s"], "permission":"%s"}' % (team_name,org_name,repo_name,permission))
+    r = requests.post(url,auth = (login,password),\
+data = '{"name":"%s", "repo_names":["%s/%s"], "permission":"%s"}' \
+% (team_name,org_name,repo_name,permission))
     if errors_requests(r)==-1:
         return -1
     if r.status_code == httplib.CREATED:  
