@@ -20,10 +20,10 @@ def help():
     print "        Function: del_user_from_org(user)"
     print    
     
-debug = 1
+debug = 0
     
 def debug_mode(value):
-    
+    global debug
     print "Debug mode is " + value
     
     if string.upper(value) == "ON":
