@@ -6,6 +6,8 @@ from conf import password
 from conf import login
 from conf import org_name
 from conf import debug
+from conf import type_pass
+from conf import token
 
 host = 'https://api.github.com/'
 
@@ -25,6 +27,38 @@ def errors_requests(value):
         return True
     return False
 
+def connect(url,method = "get",data = ""):
+    global r    
+    if type_pass:
+        #login pass
+        if method == 'get':
+            r = requests.get(url, auth = (login,password))
+            return r
+        if method == 'post':
+            r = requests.post(url,auth = (login,password),data = data)
+            return r        
+        if method == 'put':
+            r = requests.put(url,auth = (login,password),data = data)
+            return r
+        if method == 'delete':
+            r = requests.delete(url, auth = (login,password))
+            return r
+    else:
+        #token
+        if method == 'get':
+            r = requests.get(url + "?access_token=%s") % token
+            return r
+        if method == 'post':
+            r = requests.post(url + "?access_token=%s" % token, data = data)
+            return r        
+        if method == 'put':
+            r = requests.put(url + "?access_token=%s" % token, data = data)
+            return r
+        if method == 'delete':        
+            r = requests.delete(url + "?access_token=%s") % token
+            return r
+    return r
+
 def create_team(team_name,permission = 'pull',repo_name = ''):
     """
     create_team(team_name, permission, repo_name)
@@ -39,18 +73,19 @@ def create_team(team_name,permission = 'pull',repo_name = ''):
     """
     reqq = 'orgs/%s/teams' % org_name
     url = host + reqq
-    r = requests.post(url,auth = (login,password),\
-data = '{"name":"%s", "repo_names":["%s/%s"], "permission":"%s"}' \
-% (team_name,org_name,repo_name,permission))
+    data = '{"name":"%s", "repo_names":["%s/%s"], "permission":"%s"}'\
+    % (team_name,org_name,repo_name,permission)
+    connect(url,"post",data)    
     if (errors_requests(r))&(r.status_code == httplib.CREATED):  
         return 0
     else: 
         if debug:
-            print r.headers        
+            print r.headers
+            print r.content        
         return -1
 
 
-def create_repo(repo_name,private = 'false',description = ''):
+def create_repo(repo_name, private = 'false', description = ''):
     """
     create_repo(repo_name,private,description)
     Use this function to create a repository and 3 teams (*, *-guests, *-owners) in your organization
@@ -61,9 +96,9 @@ def create_repo(repo_name,private = 'false',description = ''):
     """
     reqq='orgs/%s/repos' % (org_name)
     url = host + reqq
-    r = requests.post(url, auth=(login,password),\
-    data = '{"name":"%s","private":"%s","description":"%s"}' \
-    % (repo_name,private,description))
+    data = '{"name":"%s","private":"%s","description":"%s"}'\
+    % (repo_name,private,description)
+    connect(url,"post",data)
     if (errors_requests(r))&(r.status_code == httplib.CREATED):
         # creating 3 teams
         create_team(repo_name,'pull',repo_name)
@@ -79,7 +114,7 @@ def create_repo(repo_name,private = 'false',description = ''):
 def search_id_team(team_name):
     reqq = 'orgs/%s/teams' % org_name
     url = host + reqq
-    r = requests.get(url, auth = (login,password))
+    connect(url,"get")
     if (errors_requests(r))&(r.status_code == httplib.OK):
         cont = json.loads(r.content)
         for i in range (len(cont)):
@@ -104,7 +139,8 @@ def add_user_to_team(user,team_name):
         return -1
     reqq = 'teams/%d/members/%s' % (team_id,user)
     url = host + reqq
-    r = requests.put(url,auth = (login,password),data = '{"login":"%s"}' % user)
+    data = '{"login":"%s"}' % user
+    connect(url,"put",data)
     if (errors_requests(r))&(r.status_code == httplib.NO_CONTENT):  #204
         return 0
     else:
@@ -124,7 +160,7 @@ def del_user_from_team(user,team_name):
         return -1
     reqq = 'teams/%d/members/%s' % (search_id_team(team_name),user)
     url = host + reqq
-    r = requests.delete(url, auth = (login,password))
+    connect(url,"delete")
     if (errors_requests(r))&(r.status_code == httplib.NO_CONTENT):  #204
         return 0
     else:
@@ -141,10 +177,11 @@ def del_user_from_org(user):
     """
     reqq = 'orgs/%s/members/%s' % (org_name,user)
     url = host + reqq
-    r = requests.delete(url,auth = (login,password))
+    connect(url,"delete")
     if (errors_requests(r))&(r.status_code == httplib.NO_CONTENT): #204
         return 0
     else:
         if debug:
             print r.headers       
         return -1
+
