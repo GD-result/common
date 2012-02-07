@@ -57,7 +57,6 @@ def connect(url,method = "get",data = ""):
         if method == 'delete':        
             r = requests.delete(url + "?access_token=%s") % token
             return r
-    return r
 
 def create_team(team_name,permission = 'pull',repo_name = ''):
     """
