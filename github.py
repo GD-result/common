@@ -1,9 +1,20 @@
+'''
+Created on 06.02.2012
+
+@author: ninja
+'''
+
 import requests
 import json
 import httplib
+import string
 
-f = open('conf.py','r')
-
+try:
+    f = open('conf.py','r')
+except IOError:
+    print "File 'conf' not found"
+    exit()
+    
 from conf import password
 from conf import login
 from conf import org_name
@@ -63,7 +74,6 @@ def create_repo(repo_name,private,description):
         create_team(repo_name,'pull',repo_name)
         create_team(repo_name+'-guests','push',repo_name)
         create_team(repo_name+'-owners','admin',repo_name)
-        print "Done! Repo %s created" % repo_name
         return 0;
     else:
         if debug == 1:
@@ -80,12 +90,12 @@ def search_id_team(team_name):
         cont = json.loads(r.content);
         i = 0;
         result = 0;
-        while 1:
+        for i in range (len(cont)):
+        #while 1:
             if cont[i]['name'] == team_name:
                 result = cont[i]['id']
                 break;
-            
-            i += 1;
+
             
     else:
         if debug == 1:
@@ -107,14 +117,13 @@ def add_user_to_team(user,team_name):
     url = host + reqq
     r = requests.put(url,auth = (login,password),data = '{"login":"%s"}' % user)
     if r.status_code == httplib.NO_CONTENT:  #204
-        print "%s was added to team" % user;
         return 0;
     else:
         if debug == 1:
             print r.headers;          
- 
+            
         return -1
-
+       
 #delete from team
 def del_user_from_team(user,team_name):
     if search_id_team(team_name) == -1:
@@ -123,8 +132,6 @@ def del_user_from_team(user,team_name):
     url = host + reqq
     r = requests.delete(url, auth = (login,password))
     if r.status_code == httplib.NO_CONTENT:  #ERROR 204
-        result = "User '" + user + "' was deleted from team " + team_name
-        print result;
         return 0;
     else:
         if debug == 1:
@@ -144,3 +151,5 @@ def del_user_from_org(user):
             print r.headers;       
             
         return -1
+
+print search_id_team("common")
