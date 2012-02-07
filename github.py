@@ -82,7 +82,6 @@ def search_id_team(team_name):
         for i in range (len(cont)):
             if cont[i]['name'] == team_name:
                 return cont[i]['id']
-                break            
     else:
         if debug:
             print r.headers        
