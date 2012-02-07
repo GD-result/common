@@ -26,7 +26,8 @@ def errors_requests(value):
 def create_team(team_name,permission = 'pull',repo_name = ''):
     """
     create_team(team_name, permission, repo_name)
-    Use this function to create team in your organization
+    Use this function to create a team in your organization
+    Input:
     team_name - Required string
     permission - Optional string
         pull - team members can pull, but not push or administer this repositories. Default
@@ -49,7 +50,8 @@ data = '{"name":"%s", "repo_names":["%s/%s"], "permission":"%s"}' \
 def create_repo(repo_name,private = 'false',description = ''):
     """
     create_repo(repo_name,private,description)
-    Use this function to create repository and 3 teams (*, *-guests, *-owners) in your organization
+    Use this function to create a repository and 3 teams (*, *-guests, *-owners) in your organization
+    Input:
 	repo_name - Required string
 	private - Optional string. true to create a private repository, false to create a public one. Default is false.
 	description - Optional string
@@ -87,8 +89,14 @@ def search_id_team(team_name):
         return -1
     return -1
 
-#add user to team
 def add_user_to_team(user,team_name):
+    """
+    add_user_to_team(user,team_name)
+    Use this function to add a user to a team
+    Input:
+    user - Required string. Username
+    team_name - Required string
+    """
     team_id = search_id_team(team_name)
     if team_id == -1:
         return -1
@@ -102,8 +110,14 @@ def add_user_to_team(user,team_name):
             print r.headers          
         return -1
 
-#delete from team
 def del_user_from_team(user,team_name):
+    """
+    del_user_from_team(user,team_name)
+    Use this function to remove user from team
+    Input:
+    user - Required string. Username
+    team_name - Required string
+    """
     if search_id_team(team_name) == -1:
         return -1
     reqq = 'teams/%d/members/%s' % (search_id_team(team_name),user)
@@ -116,8 +130,13 @@ def del_user_from_team(user,team_name):
             print r.headers           
         return -1
 
-#delete user from org
 def del_user_from_org(user):
+    """
+    del_user_from_team(user,team_name)
+    Use this function to remove user from your organization
+    Input:
+    user - Required string. Username
+    """
     reqq = 'orgs/%s/members/%s' % (org_name,user)
     url = host + reqq
     r = requests.delete(url,auth = (login,password))
