@@ -1,6 +1,7 @@
 import requests
 import json
 import httplib
+import string
 
 f = open('conf.py','r')
 
@@ -27,25 +28,22 @@ def debug_mode(value):
     
     if string.upper(value) == "ON":
         debug = 1
-    
     if  string.upper(value) == "OFF":
         debug = 0
-    else:
-        debug = -1 
 
 def errors_requests(value):
-	if value.headers['x-ratelimit-remaining']==0:
-		return -1
+	if value.headers['x-ratelimit-remaining'] > 0:
+		return true
 
-def create_team(team_name,permission = "pull",repo_name = ""):
+def create_team(team_name,permission = 'pull',repo_name = ''):
     """
     create_team(team_name, permission, repo_name)
     Use this function to create team in your organization
     team_name - Required string
     permission - Optional string
-    pull - team members can pull, but not push or administer this repositories. Default
-    push - team members can pull and push, but not administer this repositores.
-    admin - team members can pull, push and administer these repositories
+        pull - team members can pull, but not push or administer this repositories. Default
+        push - team members can pull and push, but not administer this repositores.
+        admin - team members can pull, push and administer these repositories
     repo_name - Optional string
     """
     reqq = 'orgs/%s/teams' % org_name
@@ -76,9 +74,9 @@ def create_repo(repo_name,private = 'false',description = ''):
     r = requests.post(url, auth=(login,password),\
     data = '{"name":"%s","private":"%s","description":"%s"}' \
     % (repo_name,private,description))
-    if errors_requests(r)==-1:
+    if errors_requests(r) == -1:
         return -1
-    if r.status_code == httplib.CREATED:    # ERROR 201
+    if r.status_code == httplib.CREATED:
         # creating 3 teams
         create_team(repo_name,'pull',repo_name)
         create_team(repo_name+'-guests','push',repo_name)
@@ -101,14 +99,12 @@ def search_id_team(team_name):
         cont = json.loads(r.content)
         i = 0
         result = 0
-        while 1:
+        for i in range (len(cont) - 1):
             if cont[i]['name'] == team_name:
                 result = cont[i]['id']
-                break
-            
-            i += 1
-            
+                break            
     else:
+        print debug
         if debug == 1:
             print r.headers         
         
@@ -146,7 +142,7 @@ def del_user_from_team(user,team_name):
     r = requests.delete(url, auth = (login,password))
     if errors_requests(r)==-1:
         return -1
-    if r.status_code == httplib.NO_CONTENT:  #ERROR 204
+    if r.status_code == httplib.NO_CONTENT:  #204
         return 0
     else:
         if debug == 1:
@@ -161,7 +157,7 @@ def del_user_from_org(user):
     r = requests.delete(url,auth = (login,password))
     if errors_requests(r)==-1:
         return -1
-    if r.status_code == httplib.NO_CONTENT: #ERROR 204
+    if r.status_code == httplib.NO_CONTENT: #204
         return 0
     else:
         if debug == 1:
