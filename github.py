@@ -12,19 +12,15 @@ from conf import token
 host = 'https://api.github.com/'
 
 def help():
-    print
-    print "        Function: create_team(team_name,permission,repo_name)"
-    print "        Function: create_repo(repo_name,private,description)"
-    print "        Function: search_id_team(team_name)"
-    print "        Function: add_user_to_team(user,team_name)"
-    print "        Function: del_user_from_team(user,team_name)"
-    print "        Function: del_user_from_org(user)"
-    print    
+    print "\n        Function: create_team(team_name,permission,repo_name)\n\
+        Function: create_repo(repo_name,private,description)\n\
+        Function: search_id_team(team_name)\n\
+        Function: add_user_to_team(user,team_name)\n\
+        Function: del_user_from_team(user,team_name)\n\
+        Function: del_user_from_org(user)\n"    
     
-def print_debug():
-    print r.headers
-    print
-    print r.content
+def print_debug(r):
+    print r.headers + '\n\n' + r.content
 
 def errors_requests(value):
     if value.headers['x-ratelimit-remaining'] > 0:
@@ -68,7 +64,7 @@ def create_team(team_name,permission = 'pull',repo_name = ''):
         return 0
     else: 
         if debug:
-            print_debug()        
+            print_debug(r)        
         return -1
 
 
@@ -94,7 +90,7 @@ def create_repo(repo_name, private = 'false', description = ''):
         return 0
     else:
         if debug:
-            print_debug()        
+            print_debug(r)        
         return -1
 
 #search id_team by name
@@ -109,7 +105,7 @@ def search_id_team(team_name):
                 return cont[i]['id']
     else:
         if debug:
-            print_debug()        
+            print_debug(r)        
         return -1
     return -1
 
@@ -132,7 +128,7 @@ def add_user_to_team(user,team_name):
         return 0
     else:
         if debug:
-            print_debug()          
+            print_debug(r)          
         return -1
 
 def del_user_from_team(user,team_name):
@@ -152,7 +148,7 @@ def del_user_from_team(user,team_name):
         return 0
     else:
         if debug:
-            print_debug()           
+            print_debug(r)           
         return -1
 
 def del_user_from_org(user):
@@ -169,6 +165,6 @@ def del_user_from_org(user):
         return 0
     else:
         if debug:
-            print_debug()       
+            print_debug(r)       
         return -1
 
