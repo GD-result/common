@@ -20,7 +20,9 @@ def help():
         Function: del_user_from_org(user)\n"    
     
 def print_debug(r):
-    print r.headers + '\n\n' + r.content
+    print r.headers
+    print
+    print r.content
 
 def errors_requests(value):
     if value.headers['x-ratelimit-remaining'] > 0:
@@ -43,7 +45,7 @@ def connect(url,method = "get",data = ""):
                  'delete':requests.delete(url)}    
     return methods[method]
 
-def create_team(team_name,permission = 'pull',repo_name = ''):
+def create_team(team_name,permission = 'pull',repo_name = ''): #works with token (scope: repo)
     """
     create_team(team_name, permission, repo_name)
     Use this function to create a team in your organization
@@ -60,7 +62,7 @@ def create_team(team_name,permission = 'pull',repo_name = ''):
     data = '{"name":"%s", "repo_names":["%s/%s"], "permission":"%s"}'\
     % (team_name,org_name,repo_name,permission)
     r = connect(url,"post",data)    
-    if (errors_requests(r))&(r.status_code == httplib.CREATED):  
+    if (errors_requests(r))&(r.status_code == httplib.CREATED): 
         return 0
     else: 
         if debug:
@@ -68,7 +70,7 @@ def create_team(team_name,permission = 'pull',repo_name = ''):
         return -1
 
 
-def create_repo(repo_name, private = 'false', description = ''):
+def create_repo(repo_name, private = 'false', description = ''): #work's with token in Free organization
     """
     create_repo(repo_name,private,description)
     Use this function to create a repository and 3 teams (*, *-guests, *-owners) in your organization
@@ -94,7 +96,7 @@ def create_repo(repo_name, private = 'false', description = ''):
         return -1
 
 #search id_team by name
-def search_id_team(team_name):
+def search_id_team(team_name):  # works with token (scope: repo)
     reqq = 'orgs/%s/teams' % org_name
     url = host + reqq
     r = connect(url,"get")
@@ -109,7 +111,7 @@ def search_id_team(team_name):
         return -1
     return -1
 
-def add_user_to_team(user,team_name):
+def add_user_to_team(user,team_name):   #don't works with token. Github's bug (204 status code and no user in team)
     """
     add_user_to_team(user,team_name)
     Use this function to add a user to a team
@@ -124,6 +126,7 @@ def add_user_to_team(user,team_name):
     url = host + reqq
     data = '{"login":"%s"}' % user
     r = connect(url,"put",data)
+    #print r.status_code
     if (errors_requests(r))&(r.status_code == httplib.NO_CONTENT):  #204
         return 0
     else:
@@ -131,7 +134,7 @@ def add_user_to_team(user,team_name):
             print_debug(r)          
         return -1
 
-def del_user_from_team(user,team_name):
+def del_user_from_team(user,team_name): # works with token (scope: repo)
     """
     del_user_from_team(user,team_name)
     Use this function to remove user from team
@@ -151,7 +154,7 @@ def del_user_from_team(user,team_name):
             print_debug(r)           
         return -1
 
-def del_user_from_org(user):
+def del_user_from_org(user):    # works with token (scope: repo)
     """
     del_user_from_team(user,team_name)
     Use this function to remove user from your organization
