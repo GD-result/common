@@ -12,6 +12,10 @@ from conf import token
 host = 'https://api.github.com/'
 
 def help():
+    """
+    help()
+    Use this function to print help 
+    """  
     print "\n        Function: create_team(team_name,permission,repo_name)\n\
         Function: create_repo(repo_name,private,description)\n\
         Function: search_id_team(team_name)\n\
@@ -20,16 +24,36 @@ def help():
         Function: del_user_from_org(user)\n"    
     
 def print_debug(r):
-    print r.headers
-    print
-    print r.content
+    """
+    print_debug(r)
+    Use this function to print headers and content of HTTP requests 
+    r - Required Requests's type
+    """  
+    print r.headers, "\n\n", r.content
 
 def errors_requests(value):
+    """
+    errors_requests(value)
+    Use this function to check for errors associated with the ratelimit 
+    value - Required Requests's type
+    """
     if value.headers['x-ratelimit-remaining'] > 0:
         return True
     return False
 
-def connect(url,method = "get",data = ""):    
+def connect(url,method = "get",data = ""):
+    """
+    connect(url,method = "get",data = "")
+    Use this function to connect with URL different types of authorization 
+    Input:
+    url - Required string
+    method - Optional string (defaut method = 'get')
+        'get'
+        'post' 
+        'put'
+        'delete'
+    data - Optional string (defaut method = 'get')
+    """    
     if type_pass:
         #login pass
         methods={'get':   requests.get(url, auth = (login,password)),\
@@ -45,7 +69,7 @@ def connect(url,method = "get",data = ""):
                  'delete':requests.delete(url)}    
     return methods[method]
 
-def create_team(team_name,permission = 'pull',repo_name = ''): #works with token (scope: repo)
+def create_team(team_name,permission = 'pull',repo_name = ''):
     """
     create_team(team_name, permission, repo_name)
     Use this function to create a team in your organization
@@ -70,13 +94,15 @@ def create_team(team_name,permission = 'pull',repo_name = ''): #works with token
         return -1
 
 
-def create_repo(repo_name, private = 'false', description = ''): #work's with token in Free organization
+def create_repo(repo_name, private = 'false', description = ''):
     """
     create_repo(repo_name,private,description)
-    Use this function to create a repository and 3 teams (*, *-guests, *-owners) in your organization
+    Use this function to create a repository and
+        3 teams (*, *-guests, *-owners) in your organization
     Input:
 	repo_name - Required string
-	private - Optional string. true to create a private repository, false to create a public one. Default is false.
+	private - Optional string. true to create a private repository, 
+        false to create a public one. Default is false.
 	description - Optional string
     """
     reqq='orgs/%s/repos' % (org_name)
@@ -85,7 +111,6 @@ def create_repo(repo_name, private = 'false', description = ''): #work's with to
     % (repo_name,private,description)
     r = connect(url,"post",data)
     if (errors_requests(r))&(r.status_code == httplib.CREATED):
-        # creating 3 teams
         create_team(repo_name,'pull',repo_name)
         create_team(repo_name+'-guests','push',repo_name)
         create_team(repo_name+'-owners','admin',repo_name)
@@ -95,8 +120,13 @@ def create_repo(repo_name, private = 'false', description = ''): #work's with to
             print_debug(r)        
         return -1
 
-#search id_team by name
-def search_id_team(team_name):  # works with token (scope: repo)
+def search_id_team(team_name):
+    """
+    search_id_team(team_name)
+    Use this function to search team`s id by team`s name
+    Input:
+    team_name - Required string
+    """
     reqq = 'orgs/%s/teams' % org_name
     url = host + reqq
     r = connect(url,"get")
@@ -109,9 +139,9 @@ def search_id_team(team_name):  # works with token (scope: repo)
         if debug:
             print_debug(r)        
         return -1
-    return -1
 
-def add_user_to_team(user,team_name):   #don't works with token. Github's bug (204 status code and no user in team)
+def add_user_to_team(user,team_name):   #don't works with token scopes repo.
+    # Github's bug (204 status code and no user in team)
     """
     add_user_to_team(user,team_name)
     Use this function to add a user to a team
@@ -120,21 +150,20 @@ def add_user_to_team(user,team_name):   #don't works with token. Github's bug (2
     team_name - Required string
     """
     team_id = search_id_team(team_name)
-    if team_id == -1:
+    if team_id == -1: 
         return -1
-    reqq = 'teams/%d/members/%s' % (team_id,user)
+    reqq = 'teams/%s/members/%s' % (team_id,user)
     url = host + reqq
     data = '{"login":"%s"}' % user
     r = connect(url,"put",data)
-    #print r.status_code
-    if (errors_requests(r))&(r.status_code == httplib.NO_CONTENT):  #204
+    if (errors_requests(r))&(r.status_code == httplib.NO_CONTENT):
         return 0
     else:
         if debug:
             print_debug(r)          
         return -1
 
-def del_user_from_team(user,team_name): # works with token (scope: repo)
+def del_user_from_team(user,team_name):
     """
     del_user_from_team(user,team_name)
     Use this function to remove user from team
@@ -147,14 +176,14 @@ def del_user_from_team(user,team_name): # works with token (scope: repo)
     reqq = 'teams/%d/members/%s' % (search_id_team(team_name),user)
     url = host + reqq
     r = connect(url,"delete")
-    if (errors_requests(r))&(r.status_code == httplib.NO_CONTENT):  #204
+    if (errors_requests(r))&(r.status_code == httplib.NO_CONTENT):
         return 0
     else:
         if debug:
             print_debug(r)           
         return -1
 
-def del_user_from_org(user):    # works with token (scope: repo)
+def del_user_from_org(user):
     """
     del_user_from_team(user,team_name)
     Use this function to remove user from your organization
@@ -164,10 +193,9 @@ def del_user_from_org(user):    # works with token (scope: repo)
     reqq = 'orgs/%s/members/%s' % (org_name,user)
     url = host + reqq
     r = connect(url,"delete")
-    if (errors_requests(r))&(r.status_code == httplib.NO_CONTENT): #204
+    if (errors_requests(r))&(r.status_code == httplib.NO_CONTENT):
         return 0
     else:
         if debug:
             print_debug(r)       
         return -1
-
