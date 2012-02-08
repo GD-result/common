@@ -21,42 +21,31 @@ def help():
     print "        Function: del_user_from_org(user)"
     print    
     
+def print_debug():
+    print r.headers
+    print
+    print r.content
 
 def errors_requests(value):
     if value.headers['x-ratelimit-remaining'] > 0:
         return True
     return False
 
-def connect(url,method = "get",data = ""):
-    global r    
+def connect(url,method = "get",data = ""):    
     if type_pass:
         #login pass
-        if method == 'get':
-            r = requests.get(url, auth = (login,password))
-            return r
-        if method == 'post':
-            r = requests.post(url,auth = (login,password),data = data)
-            return r        
-        if method == 'put':
-            r = requests.put(url,auth = (login,password),data = data)
-            return r
-        if method == 'delete':
-            r = requests.delete(url, auth = (login,password))
-            return r
+        methods={'get':   requests.get(url, auth = (login,password)),\
+                 'post':  requests.post(url,auth = (login,password),data = data),\
+                 'put':   requests.put(url,auth = (login,password),data = data),\
+                 'delete':requests.delete(url, auth = (login,password))}    
     else:
         #token
-        if method == 'get':
-            r = requests.get(url + "?access_token=%s") % token
-            return r
-        if method == 'post':
-            r = requests.post(url + "?access_token=%s" % token, data = data)
-            return r        
-        if method == 'put':
-            r = requests.put(url + "?access_token=%s" % token, data = data)
-            return r
-        if method == 'delete':        
-            r = requests.delete(url + "?access_token=%s") % token
-            return r
+        url = url + "?access_token=" + token
+        methods={'get':   requests.get(url),\
+                 'post':  requests.post(url, data = data),\
+                 'put':   requests.put(url, data = data),\
+                 'delete':requests.delete(url)}    
+    return methods[method]
 
 def create_team(team_name,permission = 'pull',repo_name = ''):
     """
@@ -74,13 +63,12 @@ def create_team(team_name,permission = 'pull',repo_name = ''):
     url = host + reqq
     data = '{"name":"%s", "repo_names":["%s/%s"], "permission":"%s"}'\
     % (team_name,org_name,repo_name,permission)
-    connect(url,"post",data)    
+    r = connect(url,"post",data)    
     if (errors_requests(r))&(r.status_code == httplib.CREATED):  
         return 0
     else: 
         if debug:
-            print r.headers
-            print r.content        
+            print_debug()        
         return -1
 
 
@@ -97,7 +85,7 @@ def create_repo(repo_name, private = 'false', description = ''):
     url = host + reqq
     data = '{"name":"%s","private":"%s","description":"%s"}'\
     % (repo_name,private,description)
-    connect(url,"post",data)
+    r = connect(url,"post",data)
     if (errors_requests(r))&(r.status_code == httplib.CREATED):
         # creating 3 teams
         create_team(repo_name,'pull',repo_name)
@@ -106,14 +94,14 @@ def create_repo(repo_name, private = 'false', description = ''):
         return 0
     else:
         if debug:
-            print r.headers        
+            print_debug()        
         return -1
 
 #search id_team by name
 def search_id_team(team_name):
     reqq = 'orgs/%s/teams' % org_name
     url = host + reqq
-    connect(url,"get")
+    r = connect(url,"get")
     if (errors_requests(r))&(r.status_code == httplib.OK):
         cont = json.loads(r.content)
         for i in range (len(cont)):
@@ -121,7 +109,7 @@ def search_id_team(team_name):
                 return cont[i]['id']
     else:
         if debug:
-            print r.headers        
+            print_debug()        
         return -1
     return -1
 
@@ -139,12 +127,12 @@ def add_user_to_team(user,team_name):
     reqq = 'teams/%d/members/%s' % (team_id,user)
     url = host + reqq
     data = '{"login":"%s"}' % user
-    connect(url,"put",data)
+    r = connect(url,"put",data)
     if (errors_requests(r))&(r.status_code == httplib.NO_CONTENT):  #204
         return 0
     else:
         if debug:
-            print r.headers          
+            print_debug()          
         return -1
 
 def del_user_from_team(user,team_name):
@@ -159,12 +147,12 @@ def del_user_from_team(user,team_name):
         return -1
     reqq = 'teams/%d/members/%s' % (search_id_team(team_name),user)
     url = host + reqq
-    connect(url,"delete")
+    r = connect(url,"delete")
     if (errors_requests(r))&(r.status_code == httplib.NO_CONTENT):  #204
         return 0
     else:
         if debug:
-            print r.headers           
+            print_debug()           
         return -1
 
 def del_user_from_org(user):
@@ -176,11 +164,11 @@ def del_user_from_org(user):
     """
     reqq = 'orgs/%s/members/%s' % (org_name,user)
     url = host + reqq
-    connect(url,"delete")
+    r = connect(url,"delete")
     if (errors_requests(r))&(r.status_code == httplib.NO_CONTENT): #204
         return 0
     else:
         if debug:
-            print r.headers       
+            print_debug()       
         return -1
 
