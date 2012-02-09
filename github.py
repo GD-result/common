@@ -139,6 +139,7 @@ def search_id_team(team_name):
         if debug:
             print_debug(r)        
         return -1
+    return -1
 
 def add_user_to_team(user,team_name):   #don't works with token scopes repo.
     # Github's bug (204 status code and no user in team)
