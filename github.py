@@ -62,7 +62,7 @@ def connect(url,method = "get",data = ""):
                  'delete':requests.delete(url, auth = (login,password))}    
     else:
         #token
-        url = url + "?access_token=" + token
+        url += "?access_token=" + token
         methods={'get':   requests.get(url),\
                  'post':  requests.post(url, data = data),\
                  'put':   requests.put(url, data = data),\
@@ -151,9 +151,11 @@ def add_user_to_team(user,team_name):   #don't works with token scopes repo.
     team_name - Required string
     """
     team_id = search_id_team(team_name)
-    if team_id == -1: 
+    if team_id == -1:
+        if debug: 
+            print httplib.NOT_FOUND
         return -1
-    reqq = 'teams/%s/members/%s' % (team_id,user)
+    reqq = 'teams/%d/members/%s' % (team_id,user)
     url = host + reqq
     data = '{"login":"%s"}' % user
     r = connect(url,"put",data)
@@ -172,9 +174,12 @@ def del_user_from_team(user,team_name):
     user - Required string. Username
     team_name - Required string
     """
-    if search_id_team(team_name) == -1:
+    team_id = search_id_team(team_name)
+    if team_id == -1:
+        if debug: 
+            print httplib.NOT_FOUND
         return -1
-    reqq = 'teams/%d/members/%s' % (search_id_team(team_name),user)
+    reqq = 'teams/%d/members/%s' % (team_id,user)
     url = host + reqq
     r = connect(url,"delete")
     if (errors_requests(r))&(r.status_code == httplib.NO_CONTENT):
