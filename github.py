@@ -47,6 +47,27 @@ def errors_requests(value):
         return True
     return False
 
+def connect2(url,method = "get",data = ""):
+
+    k = "absd";
+    m = {"t":k.find('a'),"tt":k.find('b')}
+
+    print m["tt"]
+    if type_pass:
+        #login pass
+        methods2=(requests.get(url, auth = (login,password)),\
+                 requests.post(url,auth = (login,password),data = data),\
+                 requests.put(url,auth = (login,password),data = data),\
+                 requests.delete(url, auth = (login,password)))
+    else:
+        #token
+        url += "?access_token=" + token
+        methods={'get': requests.get(url),\
+                 'post': requests.post(url, data = data),\
+                 'put': requests.put(url, data = data),\
+                 'delete':requests.delete(url)}
+    return methods2[2]
+
 def connect(url,method = "get",data = ""):
     """
     connect(url,method = "get",data = "")
@@ -180,7 +201,7 @@ def add_user_to_team(user,team_name):   #don't works with token scopes repo.
     reqq = 'teams/%d/members/%s' % (team_id,user)
     url = host + reqq
     data = '{"login":"%s"}' % user
-    r = connect(url,"put",data)
+    r = connect2(url,"put",data)
     #print r.read();
     #r = requests.put(url,auth = (login,password),data = data)
     if (errors_requests(r))&(r.status_code == httplib.NO_CONTENT):
@@ -229,3 +250,5 @@ def del_user_from_org(user):
         if debug:
             print_debug(r)       
         return -1
+
+k = add_user_to_team("fakeuser","best")
