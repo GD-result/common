@@ -1,3 +1,4 @@
+
 import requests
 import json
 import httplib
@@ -53,21 +54,35 @@ def connect(url,method = "get",data = ""):
         'put'
         'delete'
     data - Optional string (defaut method = 'get')
-    """    
+    """   
     if type_pass:
         #login pass
-        methods={'get':   requests.get(url, auth = (login,password)),\
-                 'post':  requests.post(url,auth = (login,password),data = data),\
-                 'put':   requests.put(url,auth = (login,password),data = data),\
-                 'delete':requests.delete(url, auth = (login,password))}    
+        if method == 'get':
+            r = requests.get(url, auth = (login,password))
+            return r
+        if method == 'post':
+            r = requests.post(url,auth = (login,password),data = data)
+            return r
+        if method == 'put':
+            r = requests.put(url,auth = (login,password),data = data)
+            return r
+        if method == 'delete':
+            r = requests.delete(url, auth = (login,password))
+            return r
     else:
         #token
-        url += "?access_token=" + token
-        methods={'get':   requests.get(url),\
-                 'post':  requests.post(url, data = data),\
-                 'put':   requests.put(url, data = data),\
-                 'delete':requests.delete(url)}    
-    return methods[method]
+        if method == 'get':
+            r = requests.get(url + "?access_token=%s") % token
+            return r
+        if method == 'post':
+            r = requests.post(url + "?access_token=%s" % token, data = data)
+            return r
+        if method == 'put':
+            r = requests.put(url + "?access_token=%s" % token, data = data)
+            return r
+        if method == 'delete':
+            r = requests.delete(url + "?access_token=%s") % token
+            return r
 
 def create_team(team_name,permission = 'pull',repo_name = ''):
     """
@@ -114,7 +129,8 @@ def create_repo(repo_name, private = 'false', description = ''):
         create_team(repo_name,'pull',repo_name)
         create_team(repo_name+'-guests','push',repo_name)
         create_team(repo_name+'-owners','admin',repo_name)
-        return 0
+        return 0;
+
     else:
         if debug:
             print_debug(r)        
@@ -159,8 +175,6 @@ def add_user_to_team(user,team_name):   #don't works with token scopes repo.
     url = host + reqq
     data = '{"login":"%s"}' % user
     r = connect(url,"put",data)
-    print_debug(r)
-    print data, url
     if (errors_requests(r))&(r.status_code == httplib.NO_CONTENT):
         return 0
     else:
@@ -207,4 +221,3 @@ def del_user_from_org(user):
         if debug:
             print_debug(r)       
         return -1
-print add_user_to_team("fakeuser","best")
