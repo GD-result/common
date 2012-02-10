@@ -1,6 +1,6 @@
-login = 'fakeuser'
-password = 'gfhjkm2012'
+login = 'smustafin'
+password = '12as34df'
 org_name = 'GD-result'
-debug = True
+debug = False
 type_pass = False
-token = 'b7f6bb703fdb0108083514318645ea16123c6015'
+token = "56454eae8676f36e2fd2d0c9157b05aff6cb0818"

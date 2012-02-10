@@ -13,30 +13,35 @@ host = 'https://api.github.com/'
 global_url = "";
 
 class auth:     
-    def type_p(self):
-        global global_url;
+    """
+    class auth
+    Use this class to connect with URL different types of authorization
+        and methods 
+    Input:
+    url - Required string
+    data - Required string
+    """ 
+    def type_p(self,url):
+        global global_url, auth_tmp, url_tmp;
         if type_pass:
             global_url = "";
-            return (login,password)
+            auth_tmp = (login,password)
         else:
             global_url = "?access_token=" + token;
-            return ""
-    def put(self,url,data):
-        auth_tmp = self.type_p()
+            auth_tmp =""
         url_tmp = url + global_url;
+    def put(self,url,data):
+        self.type_p(url)
         return requests.put(url = url_tmp,auth = auth_tmp, data = data)      
     def post(self,url,data):
-        auth_tmp = self.type_p()
-        url_tmp = url + global_url;
+        self.type_p(url)
         return requests.post(url = url_tmp,auth = auth_tmp, data = data)
-    def delete(self,url,data):
-        auth_tmp = self.type_p()
-        url_tmp = url + global_url;
-        return requests.delete(url = url_tmp,auth = auth_tmp,data = data)
-    def get(self,url,data):
-        auth_tmp = self.type_p()
-        url_tmp = url + global_url;
-        return requests.get(url= url_tmp ,auth = auth_tmp,data = data)
+    def delete(self,url):
+        self.type_p(url)
+        return requests.delete(url = url_tmp,auth = auth_tmp)
+    def get(self,url):
+        self.type_p(url)
+        return requests.get(url= url_tmp ,auth = auth_tmp)
     
 type_connect = auth();
 
@@ -69,48 +74,6 @@ def errors_requests(value):
     if value.headers['x-ratelimit-remaining'] > 0:
         return True
     return False
-
-def connect(url,method = "get",data = ""):  #old version, do't use in this release
-    """
-    connect(url,method = "get",data = "")
-    Use this function to connect with URL different types of authorization 
-    Input:
-    url - Required string
-    method - Optional string (defaut method = 'get')
-        'get'
-        'post' 
-        'put'
-        'delete'
-    data - Optional string (defaut method = 'get')
-    """  
-    if type_pass:
-        #login pass
-        if method == 'get':
-            r = requests.get(url, auth = (login,password),data = "")
-            return r
-        if method == 'post':
-            r = requests.post(url,auth = (login,password),data = data)
-            return r
-        if method == 'put':
-            r = requests.put(url,auth = (login,password),data = data)
-            return r
-        if method == 'delete':
-            r = requests.delete(url, auth = (login,password))
-            return r
-    else:
-        #token
-        if method == 'get':
-            r = requests.get(url + "?access_token=%s" % token)
-            return r
-        if method == 'post':
-            r = requests.post(url + "?access_token=%s" % token, data = data)
-            return r
-        if method == 'put':
-            r = requests.put(url + "?access_token=%s" % token, data = data)
-            return r
-        if method == 'delete':
-            r = requests.delete(url + "?access_token=%s" % token )
-            return r
 
 def create_team(team_name,permission = 'pull',repo_name = ''):
     """
@@ -176,7 +139,7 @@ def search_id_team(team_name):
     reqq = 'orgs/%s/teams' % org_name
     url = host + reqq
     #r = connect(url,"get")
-    r = type_connect.get(url, "")
+    r = type_connect.get(url)
     if (errors_requests(r))&(r.status_code == httplib.OK):
         cont = json.loads(r.content)
         for i in range (len(cont)):
@@ -203,9 +166,9 @@ def add_user_to_team(user,team_name):
         return -1
     reqq = 'teams/%s/members/%s' % (team_id,user)
     url = host + reqq
-    data = '{"login":"%s"}' % user
+    data = '{}'
     #r = connect(url,"put",data)
-    r = type_connect.put(url,data);
+    r = type_connect.put(url, data);
     if (errors_requests(r))&(r.status_code == httplib.NO_CONTENT):
         return 0
     else:
@@ -229,7 +192,7 @@ def del_user_from_team(user,team_name):
     reqq = 'teams/%d/members/%s' % (team_id,user)
     url = host + reqq
     #r = connect(url,"delete")
-    r = type_connect.delete(url, "")
+    r = type_connect.delete(url)
     if (errors_requests(r))&(r.status_code == httplib.NO_CONTENT):
         return 0
     else:
@@ -246,8 +209,8 @@ def del_user_from_org(user):
     """
     reqq = 'orgs/%s/members/%s' % (org_name,user)
     url = host + reqq
-    r = connect(url,"delete")
-    #r = type_connect.delete(url,"");
+    #r = connect(url,"delete")
+    r = type_connect.delete(url);
     if (errors_requests(r))&(r.status_code == httplib.NO_CONTENT):
         return 0
     else:
@@ -255,9 +218,17 @@ def del_user_from_org(user):
             print_debug(r)       
         return -1
 
-    
-#Test {---------------------------------}
-#create_team("new","admin","new")
-#add_user_to_team("fakeuser","new")
-#del_user_from_team("fakeuser","new")
-#create_repo("GD_NEW","True","new")
+def get_list_token():
+    """
+    get_list_token()
+    Use this function to get list token
+    """
+    url = host + 'authorizations'
+    r = type_connect.get(url)
+    if (errors_requests(r))&(r.status_code == httplib.OK):
+        print r.content
+        return 0
+    else:
+        if debug:
+            print_debug(r)       
+        return -1
