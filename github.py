@@ -11,7 +11,6 @@ from conf import type_pass
 from conf import token
 
 host = 'https://api.github.com/'
-global_url = "";
 
 class auth:     
     """
@@ -235,8 +234,6 @@ def get_list_token():
         return -1
 
 #print add_user_to_team('fakeuser','common')
-
 #Test {---------------------------------}
-
 #add_user_to_team("fakeuser","common")
-
+#get_list_token()
