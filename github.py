@@ -141,8 +141,7 @@ def search_id_team(team_name):
         return -1
     return -1
 
-def add_user_to_team(user,team_name):   #don't works with token scopes repo.
-    # Github's bug (204 status code and no user in team)
+def add_user_to_team(user,team_name):   #don't works. 411 HTTP Error
     """
     add_user_to_team(user,team_name)
     Use this function to add a user to a team
@@ -158,7 +157,8 @@ def add_user_to_team(user,team_name):   #don't works with token scopes repo.
     reqq = 'teams/%d/members/%s' % (team_id,user)
     url = host + reqq
     data = '{"login":"%s"}' % user
-    r = connect(url,"put",data)
+    print url, "\n"
+    r = connect(url,'put',data)
     if (errors_requests(r))&(r.status_code == httplib.NO_CONTENT):
         return 0
     else:
