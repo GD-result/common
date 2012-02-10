@@ -11,33 +11,33 @@ from conf import type_pass
 from conf import token
 
 host = 'https://api.github.com/'
-gl_url = "";
+global_url = "";
 
 class auth:     
     def type_p(self):
-        global gl_url;
+        global global_url;
         if type_pass:
-            gl_url = "";
+            global_url = "";
             return (login,password)
         else:
-            gl_url = "?access_token=" + token;
+            global_url = "?access_token=" + token;
             return ""
-    def put(self,ur,da):
-        au = self.type_p()
-        url_tmp = ur + gl_url;
-        return requests.put(url = url_tmp,auth = au, data = da)      
-    def post(self,ur,da):
-        au = self.type_p()
-        url_tmp = ur + gl_url;
-        return requests.post(url = url_tmp,auth = au, data = da)
-    def delete(self,ur,da):
-        au = self.type_p()
-        url_tmp = ur + gl_url;
-        return requests.delete(url = url_tmp,auth = au,data = da)
-    def get(self,ur,da):
-        au = self.type_p()
-        url_tmp = ur + gl_url;
-        return requests.get(url= url_tmp ,auth = au,data = da)
+    def put(self,url,data):
+        auth_tmp = self.type_p()
+        url_tmp = url + global_url;
+        return requests.put(url = url_tmp,auth = auth_tmp, data = data)      
+    def post(self,url,data):
+        auth_tmp = self.type_p()
+        url_tmp = url + global_url;
+        return requests.post(url = url_tmp,auth = auth_tmp, data = data)
+    def delete(self,url,data):
+        auth_tmp = self.type_p()
+        url_tmp = url + global_url;
+        return requests.delete(url = url_tmp,auth = auth_tmp,data = data)
+    def get(self,url,data):
+        auth_tmp = self.type_p()
+        url_tmp = url + global_url;
+        return requests.get(url= url_tmp ,auth = auth_tmp,data = data)
     
 type_connect = auth();
 
@@ -247,14 +247,15 @@ def del_user_from_org(user):
     """
     reqq = 'orgs/%s/members/%s' % (org_name,user)
     url = host + reqq
-    #r = connect(url,"delete")
-    r = type_connect.delete(url,"");
+    r = connect(url,"delete")
+    #r = type_connect.delete(url,"");
     if (errors_requests(r))&(r.status_code == httplib.NO_CONTENT):
         return 0
     else:
         if debug:
             print_debug(r)       
         return -1
+
     
 #Test {---------------------------------}
 #create_team("new","admin","new")
