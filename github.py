@@ -21,7 +21,7 @@ def help():
     print "        Function: del_user_from_org(user)"
     print    
     
-def print_debug():
+def print_debug(r):
     print r.headers
     print
     print r.content
@@ -132,7 +132,7 @@ def add_user_to_team(user,team_name):
         return 0
     else:
         if debug:
-            print_debug()          
+            print_debug(r)          
         return -1
 
 def del_user_from_team(user,team_name):
