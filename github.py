@@ -10,7 +10,6 @@ from conf import type_pass
 from conf import token
 
 host = 'https://api.github.com/'
-global_url = "";
 
 class auth:     
     """
