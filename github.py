@@ -217,13 +217,13 @@ def del_user_from_org(user):
             print_debug(r)       
         return -1
 
-def get_list_token():
+def list_auth():
     """
-    get_list_token()
-    Use this function to get list token
+    list_auth()
+    Use this function to list your authorizations
     """
     url = host + 'authorizations'
-    r = type_connect.get(url)
+    r = requests.get(url = url ,auth = (login,password))
     if (errors_requests(r))&(r.status_code == httplib.OK):
         print r.content
         return 0
