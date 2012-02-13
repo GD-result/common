@@ -226,14 +226,18 @@ def get_list_token():
     url = host + 'authorizations'
     r = type_connect.get(url)
     if (errors_requests(r))&(r.status_code == httplib.OK):
-        print r.content
+        js = json.loads(r.content)
+        for i in range (len(js)):
+            print "id: ", js[i]["id"]
+            print "url: ", js[i]["url"]
+            print "scopes: ", js[i]["scopes"]
+            print "token: ", js[i]["token"]
+            print "app: ", js[i]["app"]
+            print "updated_at: ", js[i]["updated_at"], "\n"
         return 0
     else:
         if debug:
             print_debug(r)       
         return -1
+get_list_token()
 
-#print add_user_to_team('fakeuser','common')
-#Test {---------------------------------}
-#add_user_to_team("fakeuser","common")
-#get_list_token()
