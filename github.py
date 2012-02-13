@@ -1,4 +1,3 @@
-
 import requests
 import json
 import httplib
@@ -166,9 +165,9 @@ def add_user_to_team(user,team_name):
         return -1
     reqq = 'teams/%s/members/%s' % (team_id,user)
     url = host + reqq
-    data = '{"login":"%s"}' % user
+    data = '{}'
     #r = connect(url,"put",data)
-    r = type_connect.put(url,data);
+    r = type_connect.put(url, data);
     if (errors_requests(r))&(r.status_code == httplib.NO_CONTENT):
         return 0
     else:
@@ -218,13 +217,13 @@ def del_user_from_org(user):
             print_debug(r)       
         return -1
 
-def get_list_token():
+def list_auth():
     """
-    get_list_token()
-    Use this function to get list token
+    list_auth()
+    Use this function to list your authorizations
     """
     url = host + 'authorizations'
-    r = type_connect.get(url)
+    r = requests.get(url = url ,auth = (login,password))
     if (errors_requests(r))&(r.status_code == httplib.OK):
         js = json.loads(r.content)
         for i in range (len(js)):
@@ -239,5 +238,3 @@ def get_list_token():
         if debug:
             print_debug(r)       
         return -1
-get_list_token()
-
