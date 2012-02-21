@@ -1,6 +1,5 @@
 import requests
 import json
-import httplib
 
 from conf import password
 from conf import login
@@ -20,27 +19,27 @@ class auth:
     url - Required string
     data - Required string
     """ 
+    global_url = ""
+    global_auth = "";
     def type_p(self,url):
-        global global_url, auth_tmp, url_tmp;
         if type_pass:
-            global_url = "";
-            auth_tmp = (login,password)
+            self.global_url = url;
+            self.global_auth = (login,password)
         else:
-            global_url = "?access_token=" + token;
-            auth_tmp =""
-        url_tmp = url + global_url;
+            self.global_url = url + "?access_token=" + token;
+            self.global_auth = ""            
     def put(self,url,data):
-        self.type_p(url)
-        return requests.put(url = url_tmp,auth = auth_tmp, data = data)      
+        self.type_p(url);
+        return requests.put(url = self.global_url, auth = self.global_auth, data = data);
     def post(self,url,data):
         self.type_p(url)
-        return requests.post(url = url_tmp,auth = auth_tmp, data = data)
+        return requests.post(url = self.global_url,auth = self.global_auth,data = data)
     def delete(self,url):
         self.type_p(url)
-        return requests.delete(url = url_tmp,auth = auth_tmp)
+        return requests.delete(url = self.global_url, auth = self.global_auth)
     def get(self,url):
         self.type_p(url)
-        return requests.get(url= url_tmp ,auth = auth_tmp)
+        return requests.get(url = self.global_url, auth = self.global_auth)
     
 type_connect = auth();
 
@@ -90,9 +89,8 @@ def create_team(team_name,permission = 'pull',repo_name = ''):
     url = host + reqq
     data = '{"name":"%s", "repo_names":["%s/%s"], "permission":"%s"}'\
     % (team_name,org_name,repo_name,permission)
-    #r = connect(url,"post",data)   #old version 
     r = type_connect.post(url, data) 
-    if (errors_requests(r))&(r.status_code == httplib.CREATED): 
+    if (errors_requests(r))&(r.status_code == requests.codes.OK): 
         return 0
     else: 
         if debug:
@@ -115,9 +113,8 @@ def create_repo(repo_name, private = 'false', description = ''):
     url = host + reqq
     data = '{"name":"%s","private":"%s","description":"%s"}'\
     % (repo_name,private,description)
-    #r = connect(url,"post",data)
     r = type_connect.post(url, data)
-    if (errors_requests(r))&(r.status_code == httplib.CREATED):
+    if (errors_requests(r))&(r.status_code == requests.codes.CREATED):
         create_team(repo_name,'pull',repo_name)
         create_team(repo_name+'-guests','push',repo_name)
         create_team(repo_name+'-owners','admin',repo_name)
@@ -137,9 +134,8 @@ def search_id_team(team_name):
     """
     reqq = 'orgs/%s/teams' % org_name
     url = host + reqq
-    #r = connect(url,"get")
     r = type_connect.get(url)
-    if (errors_requests(r))&(r.status_code == httplib.OK):
+    if (errors_requests(r))&(r.status_code == requests.codes.OK):
         cont = json.loads(r.content)
         for i in range (len(cont)):
             if cont[i]['name'] == team_name:
@@ -161,14 +157,13 @@ def add_user_to_team(user,team_name):
     team_id = search_id_team(team_name)
     if team_id == -1:
         if debug: 
-            print httplib.NOT_FOUND
+            print requests.codes.NOT_FOUND
         return -1
     reqq = 'teams/%s/members/%s' % (team_id,user)
     url = host + reqq
     data = '{}'
-    #r = connect(url,"put",data)
     r = type_connect.put(url, data);
-    if (errors_requests(r))&(r.status_code == httplib.NO_CONTENT):
+    if (errors_requests(r))&(r.status_code == requests.codes.NO_CONTENT):
         return 0
     else:
         if debug:
@@ -186,13 +181,12 @@ def del_user_from_team(user,team_name):
     team_id = search_id_team(team_name)
     if team_id == -1:
         if debug: 
-            print httplib.NOT_FOUND
+            print requests.codes.NOT_FOUND
         return -1
     reqq = 'teams/%d/members/%s' % (team_id,user)
     url = host + reqq
-    #r = connect(url,"delete")
     r = type_connect.delete(url)
-    if (errors_requests(r))&(r.status_code == httplib.NO_CONTENT):
+    if (errors_requests(r))&(r.status_code == requests.codes.NO_CONTENT):
         return 0
     else:
         if debug:
@@ -208,9 +202,8 @@ def del_user_from_org(user):
     """
     reqq = 'orgs/%s/members/%s' % (org_name,user)
     url = host + reqq
-    #r = connect(url,"delete")
     r = type_connect.delete(url);
-    if (errors_requests(r))&(r.status_code == httplib.NO_CONTENT):
+    if (errors_requests(r))&(r.status_code == requests.codes.NO_CONTENT):
         return 0
     else:
         if debug:
@@ -224,7 +217,7 @@ def list_auth():
     """
     url = host + 'authorizations'
     r = requests.get(url = url ,auth = (login,password))
-    if (errors_requests(r))&(r.status_code == httplib.OK):
+    if (errors_requests(r))&(r.status_code == requests.codes.OK):
         js = json.loads(r.content)
         for i in range (len(js)):
             print "id: ", js[i]["id"]
