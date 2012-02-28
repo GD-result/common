@@ -118,7 +118,7 @@ def create_repo(repo_name, private = 'false', description = ''):
         create_team(repo_name,'pull',repo_name)
         create_team(repo_name+'-guests','push',repo_name)
         create_team(repo_name+'-owners','admin',repo_name)
-        return 0;
+        return 0
 
     else:
         if debug:
@@ -162,7 +162,7 @@ def add_user_to_team(user,team_name):
     reqq = 'teams/%s/members/%s' % (team_id,user)
     url = host + reqq
     data = '{}'
-    r = type_connect.put(url, data);
+    r = type_connect.put(url, data)
     if (errors_requests(r))&(r.status_code == requests.codes.NO_CONTENT):
         return 0
     else:
@@ -202,7 +202,7 @@ def del_user_from_org(user):
     """
     reqq = 'orgs/%s/members/%s' % (org_name,user)
     url = host + reqq
-    r = type_connect.delete(url);
+    r = type_connect.delete(url)
     if (errors_requests(r))&(r.status_code == requests.codes.NO_CONTENT):
         return 0
     else:
