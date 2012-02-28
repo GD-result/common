@@ -137,9 +137,9 @@ def search_id_team(team_name):
     r = type_connect.get(url)
     if (errors_requests(r))&(r.status_code == requests.codes.OK):
         cont = json.loads(r.content)
-        for i in range (len(cont)):
-            if cont[i]['name'] == team_name:
-                return cont[i]['id']
+        for i, item in enumerate(cont):
+            if item['name'] == team_name:
+                return item['id']
     else:
         if debug:
             print_debug(r)        
