@@ -115,9 +115,9 @@ def create_repo(repo_name, private = 'false', description = ''):
     % (repo_name,private,description)
     r = type_connect.post(url, data)
     if (errors_requests(r))&(r.status_code == requests.codes.CREATED):
-        create_team(repo_name,'pull',repo_name)
-        create_team(repo_name+'-guests','push',repo_name)
-        create_team(repo_name+'-owners','admin',repo_name)
+        create_team(repo_name + ' guests','pull',repo_name)
+        create_team(repo_name,'push',repo_name)
+        create_team(repo_name + ' owners','admin',repo_name)
         return 0
 
     else:
